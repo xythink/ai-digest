@@ -1,0 +1,47 @@
+{
+  "rss_sources": [
+    {
+      "name": "Simon Willison",
+      "url": "https://simonwillison.net/atom/everything/",
+      "type": "blog",
+      "focus": "LLM 应用/安全实践，AI 每日动态"
+    },
+    {
+      "name": "Lilian Weng",
+      "url": "https://lilianweng.github.io/index.xml",
+      "type": "blog",
+      "focus": "Agent/安全/深度技术综述"
+    },
+    {
+      "name": "Nicholas Carlini",
+      "url": "https://nicholas.carlini.com/writing/feed.xml",
+      "type": "blog",
+      "focus": "对抗攻击/隐私/LLM安全"
+    },
+    {
+      "name": "Andrej Karpathy (YouTube)",
+      "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCXUPKJO5MZQN11PqgIvyuvQ",
+      "type": "youtube",
+      "focus": "LLM 技术科普与趋势"
+    },
+    {
+      "name": "Latent Space (Swyx)",
+      "url": "https://www.latent.space/feed",
+      "type": "podcast",
+      "focus": "AI 工程趋势"
+    }
+  ],
+  "twitter_accounts": [
+    {"handle": "karpathy", "name": "Andrej Karpathy"},
+    {"handle": "DrJimFan", "name": "Jim Fan"},
+    {"handle": "_jasonwei", "name": "Jason Wei"},
+    {"handle": "hwchung27", "name": "Hyung Won Chung"},
+    {"handle": "hwchase17", "name": "Harrison Chase"},
+    {"handle": "swyx", "name": "Swyx"},
+    {"handle": "emollick", "name": "Ethan Mollick"},
+    {"handle": "andyzou_jiaming", "name": "Andy Zou"},
+    {"handle": "dotey", "name": "宝玉"}
+  ],
+  "max_items_per_source": 5,
+  "lookback_hours": 26
+}
