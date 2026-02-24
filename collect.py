@@ -87,37 +87,51 @@ def collect_rss(config, conn, cutoff_ts):
     return items
 
 
-async def collect_twitter(config, conn):
-    """Try twscrape; returns empty list if no accounts configured."""
+def collect_twitter_via_google_news(config, conn):
+    """Use Google News RSS as a proxy to get tweets from tracked accounts."""
     items = []
-    accounts_db = DIR / "twitter_accounts.db"
-    if not accounts_db.exists():
-        print("[INFO] No Twitter accounts configured, skipping Twitter collection.")
-        print("[INFO] To enable: python3 -c \"from twscrape import API; ...\" (see README)")
-        return items
+    for acct in config.get("twitter_accounts", []):
+        handle = acct["handle"]
+        name = acct["name"]
+        # Google News RSS: search for tweets from this user in the last 1 day
+        url = (
+            f"https://news.google.com/rss/search?"
+            f"q=from:{handle}+site:x.com+when:1d&hl=en-US&gl=US&ceid=US:en"
+        )
+        try:
+            feed = feedparser.parse(url)
+            count = 0
+            for entry in feed.entries:
+                if count >= config.get("max_items_per_source", 5):
+                    break
 
-    try:
-        from twscrape import API, gather
-        api = API(str(accounts_db))
-        for acct in config.get("twitter_accounts", []):
-            try:
-                tweets = await gather(api.user_tweets(acct["handle"], limit=5))
-                for tw in tweets:
-                    h = hash_item("twitter", acct["handle"], str(tw.id))
-                    if is_seen(conn, h):
-                        continue
-                    items.append({
-                        "source": f"𝕏 {acct['name']} (@{acct['handle']})",
-                        "type": "tweet",
-                        "title": "",
-                        "link": f"https://x.com/{acct['handle']}/status/{tw.id}",
-                        "summary": tw.rawContent[:500] if tw.rawContent else "",
-                    })
-                    mark_seen(conn, h, f"twitter:{acct['handle']}", str(tw.id))
-            except Exception as e:
-                print(f"[WARN] Twitter fetch failed for @{acct['handle']}: {e}")
-    except Exception as e:
-        print(f"[WARN] twscrape error: {e}")
+                title = entry.get("title", "")
+                link = entry.get("link", "")
+
+                # Skip noise: profile pages, community pages, search results, etc.
+                if not title or "/ Posts / X" in title or "Community on X" in title:
+                    continue
+                if "/ Posts and Replies" in title or "Results on X" in title:
+                    continue
+                # Clean up title (remove " - x.com" suffix)
+                if title.endswith(" - x.com"):
+                    title = title[:-8].strip()
+
+                h = hash_item(f"twitter:{handle}", title, link)
+                if is_seen(conn, h):
+                    continue
+
+                items.append({
+                    "source": f"𝕏 {name} (@{handle})",
+                    "type": "tweet",
+                    "title": title[:200],
+                    "link": link,
+                    "summary": title[:500],
+                })
+                mark_seen(conn, h, f"twitter:{handle}", title[:100])
+                count += 1
+        except Exception as e:
+            print(f"[WARN] Google News fetch failed for @{handle}: {e}")
     return items
 
 
@@ -137,7 +151,7 @@ async def main():
     print(f"[INFO] Collecting updates (lookback {lookback}h)...")
 
     rss_items = collect_rss(config, conn, cutoff_ts)
-    twitter_items = await collect_twitter(config, conn)
+    twitter_items = collect_twitter_via_google_news(config, conn)
 
     all_items = rss_items + twitter_items
 

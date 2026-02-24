@@ -42,6 +42,7 @@
     {"handle": "andyzou_jiaming", "name": "Andy Zou"},
     {"handle": "dotey", "name": "宝玉"}
   ],
+  "twitter_method": "google_news",
   "max_items_per_source": 5,
   "lookback_hours": 26
 }
