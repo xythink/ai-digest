@@ -134,6 +134,6 @@
     {"handle": "hwchung27", "name": "Hyung Won Chung", "note": "Google研究员"}
   ],
   "twitter_method": "google_news",
-  "max_items_per_source": 5,
+  "max_items_per_source": 3,
   "lookback_hours": 26
 }
